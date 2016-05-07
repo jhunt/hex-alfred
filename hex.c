@@ -38,11 +38,14 @@ int main(int argc, char **argv)
 	}
 
 	for (i = 0; i < strlen(argv[1]); i++) {
+		if (argv[1][i] >= '0' && argv[1][i] <= '7') {
+			continue;
+		}
 		if (argv[1][i] >= '8' && argv[1][i] <= '9') {
 			b10 = 1;
 			continue;
 		}
-		if (isxdigit(argv[1][i]) || argv[1][i] == 'x') {
+		if ((argv[1][i] >= 'a' && argv[1][i] <= 'f') || argv[1][i] == 'x') {
 			b16 = 1;
 			continue;
 		}
@@ -123,7 +126,7 @@ int main(int argc, char **argv)
 	}
 	for (i = 0; i < 63; ) {
 		x32[i/4] = x8[i] << 24 | x8[i|1] << 16 | x8[i|2] << 8 | x8[i|3];
-		i += 2;
+		i += 4;
 	}
 
 #define ATTRS " valid=\"yes\" auto=\"\""
@@ -133,11 +136,13 @@ int main(int argc, char **argv)
 	printx(8, "%02x");
 	printf("</title><subtitle>hex</subtitle></item>\n");
 
+	/* octal is broken
 	printf("<item uuid=\"oct\"" ATTRS "><arg>");
 	printx(8, "%04o");
 	printf("</arg><title>");
 	printx(8, "%04o");
 	printf("</title><subtitle>octal</subtitle></item>\n");
+	*/
 
 	printf("<item uuid=\"ascii\"" ATTRS "><arg>");
 	printc(8);
