@@ -22,7 +22,13 @@ uint32_t x32[16];
 	int i, skip; \
 	for (skip = 1, i = 0; i < sizeof(x ## n) / sizeof(x ## n[0]); i++) { \
 		if (x ## n[i] == 0 && skip) { continue; } \
-		skip = 0; printf("%c ", isprint(x ## n[i]) ? x ## n[i] : '.'); \
+		skip = 0; \
+		switch (x ## n[i]) { \
+		case '<': printf("&lt; "); break; \
+		case '>': printf("&gt; "); break; \
+		case '&': printf("&amp; "); break; \
+		default:  printf("%c ", isprint(x ## n[i]) ? x ## n[i] : '.'); \
+		} \
 	} \
 } while (0)
 
