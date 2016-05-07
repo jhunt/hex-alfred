@@ -6,6 +6,7 @@
 #include <errno.h>
 
 uint8_t  x8[64];
+uint16_t x12[64];
 uint16_t x16[32];
 uint32_t x32[16];
 
@@ -27,7 +28,8 @@ uint32_t x32[16];
 
 int main(int argc, char **argv)
 {
-	int skip, i, is_str, has_ws, b8, b10, b16;
+	int skip, i, j;
+	int is_str, has_ws, b8, b10, b16;
 	long long n;
 
 	printf("<items>\n");
@@ -58,7 +60,6 @@ int main(int argc, char **argv)
 
 	if (has_ws && !is_str) {
 		char *arg, *end;
-		int j;
 
 		i = 0;
 		arg = argv[1];
@@ -128,6 +129,24 @@ int main(int argc, char **argv)
 		x32[i/4] = x8[i] << 24 | x8[i|1] << 16 | x8[i|2] << 8 | x8[i|3];
 		i += 4;
 	}
+	skip = 4; /* right skip */
+	for (i = 63, j = 63; i >= 1 && j >= 0; ){
+		switch (skip) {
+		case 4: /* 0000 1111 1111 1111 */
+			x12[j]  =  x8[i--];
+			x12[j] |= (x8[i] & 0x0f) << 8;
+			j--;
+			skip = 8;
+			break;
+
+		case 8: /* 1111 1111 1111 xxxx */
+			x12[j]  = (x8[i--] & 0xf0) >> 4;
+			x12[j] |=  x8[i--] << 4;
+			j--;
+			skip = 4;
+			break;
+		}
+	}
 
 #define ATTRS " valid=\"yes\" auto=\"\""
 	printf("<item uuid=\"hex\"" ATTRS "><arg>");
@@ -136,13 +155,11 @@ int main(int argc, char **argv)
 	printx(8, "%02x");
 	printf("</title><subtitle>hex</subtitle></item>\n");
 
-	/* octal is broken
 	printf("<item uuid=\"oct\"" ATTRS "><arg>");
-	printx(8, "%04o");
+	printx(12, "%04o");
 	printf("</arg><title>");
-	printx(8, "%04o");
+	printx(12, "%04o");
 	printf("</title><subtitle>octal</subtitle></item>\n");
-	*/
 
 	printf("<item uuid=\"ascii\"" ATTRS "><arg>");
 	printc(8);
