@@ -9,103 +9,171 @@ uint8_t  x8[64];
 uint16_t x16[32];
 uint32_t x32[16];
 
+#define min(a,b) ((a) < (b) ? (a) : (b))
+#define printx(n,f) do { \
+	int i, skip; \
+	for (skip = 1, i = 0; i < sizeof(x ## n) / sizeof(x ## n[0]); i++) { \
+		if (x ## n[i] == 0 && skip) { continue; } \
+		skip = 0; printf(f " ", x ## n[i]); \
+	} \
+} while (0)
+#define printc(n) do { \
+	int i, skip; \
+	for (skip = 1, i = 0; i < sizeof(x ## n) / sizeof(x ## n[0]); i++) { \
+		if (x ## n[i] == 0 && skip) { continue; } \
+		skip = 0; printf("%c ", isprint(x ## n[i]) ? x ## n[i] : '.'); \
+	} \
+} while (0)
+
 int main(int argc, char **argv)
 {
+	int skip, i, is_str, has_ws, b8, b10, b16;
 	long long n;
-	char *end;
 
 	printf("<items>\n");
 
-	errno = 0;
-	n = strtoll(argv[1], &end, 0);
-	if (errno != 0) {
-		printf("<item uid=\"err\"><title>oops: %s</title></item>\n", strerror(errno));
+	b8 = b10 = b16 = 0;
+	if (argv[1][0] == '0') {
+		b8 = 1;
+	}
+
+	for (i = 0; i < strlen(argv[1]); i++) {
+		if (argv[1][i] >= '8' && argv[1][i] <= '9') {
+			b10 = 1;
+			continue;
+		}
+		if (isxdigit(argv[1][i]) || argv[1][i] == 'x') {
+			b16 = 1;
+			continue;
+		}
+		if (isspace(argv[1][i])) {
+			has_ws = 1;
+			continue;
+		}
+		is_str = 1;
+	}
+
+	if (has_ws && !is_str) {
+		char *arg, *end;
+		int j;
+
+		i = 0;
+		arg = argv[1];
+		while (*arg && i < 64) {
+			errno = 0;
+			n = strtoll(arg, &end, 16);
+			if (errno != 0) {
+				goto efail;
+			}
+			if (n > 0xff || n < 0) {
+				goto nfail;
+			}
+
+			x8[i++] = n;
+
+			arg = end;
+			while (isspace(*arg)) {
+				arg++;
+			}
+		}
+
+		i--;
+		for (j = 63; i >= 0; i--, j--) {
+			x8[j] = x8[i];
+		}
+		for (j--; j >= 0; j--) {
+			x8[j] = 0;
+		}
+
+	} else if (is_str) {
+		int offset = 64 - (min(64, strlen(argv[1]) + 1) & ~0x1);
+		for (i = 0; i < offset; i++) {
+			x8[i + offset] = argv[1][i];
+			if (argv[1][i] == '\0') {
+				break;
+			}
+		}
 
 	} else {
-		long long _n;
-		int i, skip;
+		int base = 10;
 
-		_n = n;
-		for (i = 63; i >= 0 && _n > 0; i--) {
-			x8[i] = _n & 0xff;
-			_n = _n >> 8;
+		if (b8 && !b10 && !b16) {
+			base = 8;
+		} else if (b16) {
+			base = 16;
 		}
 
-		_n = n;
-		for (i = 31; i >= 0 && _n > 0; i--) {
-			x16[i] = _n & 0xffff;
-			_n = _n >> 16;
+		errno = 0;
+		n = strtoll(argv[1], NULL, base);
+		if (errno != 0) {
+			goto efail;
 		}
-
-		_n = n;
-		for (i = 15; i >= 0 && _n > 0; i--) {
-			x32[i] = _n & 0xffffffff;
-			_n = _n >> 32;
+		if (n < 0) {
+			goto nfail;
 		}
-
-
-		printf("<item uuid=\"hex\"><title>");
-		for (skip = 1, i = 0; i < 64; i++) {
-			if (x8[i] == 0 && skip) {
-				continue;
-			}
-			skip = 0;
-			printf("%02x ", x8[i]);
+		for (i = 63; i >= 0 && n > 0; i--) {
+			x8[i] = n & 0xff;
+			n = n >> 8;
 		}
-		printf("</title><subtitle>hex</subtitle></item>\n");
-
-		printf("<item uuid=\"oct\"><title>");
-		for (skip = 1, i = 0; i < 64; i++) {
-			if (x8[i] == 0 && skip) {
-				continue;
-			}
-			skip = 0;
-			printf("%04o ", x8[i]);
-		}
-		printf("</title><subtitle>octal</subtitle></item>\n");
-
-		printf("<item uuid=\"ascii\"><title>");
-		for (skip = 1, i = 0; i < 64; i++) {
-			if (x8[i] == 0 && skip) {
-				continue;
-			}
-			skip = 0;
-			printf("%c ", isprint(x8[i]) ? x8[i] : '.');
-		}
-		printf("</title><subtitle>ascii</subtitle></item>\n");
-
-		printf("<item uuid=\"dec8\"><title>");
-		for (skip = 1, i = 0; i < 64; i++) {
-			if (x8[i] == 0 && skip) {
-				continue;
-			}
-			skip = 0;
-			printf("%d ", x8[i]);
-		}
-		printf("</title><subtitle>decimal 8</subtitle></item>\n");
-
-		printf("<item uuid=\"dec16\"><title>");
-		for (skip = 1, i = 0; i < 32; i++) {
-			if (x16[i] == 0 && skip) {
-				continue;
-			}
-			skip = 0;
-			printf("%d ", x16[i]);
-		}
-		printf("</title><subtitle>decimal 16</subtitle></item>\n");
-
-		printf("<item uuid=\"dec32\"><title>");
-		for (skip = 1, i = 0; i < 16; i++) {
-			if (x32[i] == 0 && skip) {
-				continue;
-			}
-			skip = 0;
-			printf("%d ", x32[i]);
-		}
-		printf("</title><subtitle>decimal 32</subtitle></item>\n");
-
 	}
+
+	for (i = 0; i < 63; ) {
+		x16[i/2] = x8[i] << 8 | x8[i+1];
+		i += 2;
+	}
+	for (i = 0; i < 63; ) {
+		x32[i/4] = x8[i] << 24 | x8[i|1] << 16 | x8[i|2] << 8 | x8[i|3];
+		i += 2;
+	}
+
+#define ATTRS " valid=\"yes\" auto=\"\""
+	printf("<item uuid=\"hex\"" ATTRS "><arg>");
+	printx(8, "%02x");
+	printf("</arg><title>");
+	printx(8, "%02x");
+	printf("</title><subtitle>hex</subtitle></item>\n");
+
+	printf("<item uuid=\"oct\"" ATTRS "><arg>");
+	printx(8, "%04o");
+	printf("</arg><title>");
+	printx(8, "%04o");
+	printf("</title><subtitle>octal</subtitle></item>\n");
+
+	printf("<item uuid=\"ascii\"" ATTRS "><arg>");
+	printc(8);
+	printf("</arg><title>");
+	printc(8);
+	printf("</title><subtitle>ascii</subtitle></item>\n");
+
+	printf("<item uuid=\"dec8\"" ATTRS "><arg>");
+	printx(8, "%d");
+	printf("</arg><title>");
+	printx(8, "%d");
+	printf("</title><subtitle>decimal 8</subtitle></item>\n");
+
+	printf("<item uuid=\"dec16\"" ATTRS "><arg>");
+	printx(16, "%d");
+	printf("</arg><title>");
+	printx(16, "%d");
+	printf("</title><subtitle>decimal 16</subtitle></item>\n");
+
+	printf("<item uuid=\"dec32\"" ATTRS "><arg>");
+	printx(32, "%d");
+	printf("</arg><title>");
+	printx(32, "%d");
+	printf("</title><subtitle>decimal 32</subtitle></item>\n");
 
 	printf("</items>\n");
 	return 0;
+
+efail:
+	printf("<item uuid=\"errno\"><title>oops... %s</title><subtitle>that's an error code %d</subtitle></item>\n",
+		strerror(errno), errno);
+	printf("</items>\n");
+	return 1;
+
+nfail:
+	printf("<item uuid=\"errno\"><title>oops... %s is an odd looking numeric</title></item>\n", argv[1]);
+	printf("</items>\n");
+	return 2;
 }
