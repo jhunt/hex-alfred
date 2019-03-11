@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 
 	printf("<items>\n");
 
-	b8 = b10 = b16 = 0;
+	is_str = has_ws = b8 = b10 = b16 = 0;
 	if (argv[1][0] == '0') {
 		b8 = 1;
 	}
