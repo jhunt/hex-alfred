@@ -11,6 +11,24 @@ uint16_t x16[32];
 uint32_t x32[16];
 
 #define min(a,b) ((a) < (b) ? (a) : (b))
+#define printb(n) do { \
+	int i, skip; \
+	for (skip = 1, i = 0; i < sizeof(x ## n) / sizeof(x ## n[0]); i++) { \
+		if (x ## n[i] == 0 && skip) { continue; } \
+		if (!skip) printf(" "); \
+		skip = 0; \
+		printf("%c%c%c%c %c%c%c%c", \
+			((x ## n[i] & 0x80) == 0x80 ? '1' : '0'), \
+			((x ## n[i] & 0x40) == 0x40 ? '1' : '0'), \
+			((x ## n[i] & 0x20) == 0x20 ? '1' : '0'), \
+			((x ## n[i] & 0x10) == 0x10 ? '1' : '0'), \
+			\
+			((x ## n[i] & 0x08) == 0x08 ? '1' : '0'), \
+			((x ## n[i] & 0x04) == 0x04 ? '1' : '0'), \
+			((x ## n[i] & 0x02) == 0x02 ? '1' : '0'), \
+			((x ## n[i] & 0x01) == 0x01 ? '1' : '0')); \
+	} \
+} while (0)
 #define printx(n,f) do { \
 	int i, skip; \
 	for (skip = 1, i = 0; i < sizeof(x ## n) / sizeof(x ## n[0]); i++) { \
@@ -192,6 +210,12 @@ int main(int argc, char **argv)
 	printf("</arg><title>");
 	printx(32, "%d");
 	printf("</title><subtitle>decimal 32</subtitle></item>\n");
+
+	printf("<item uuid=\"bin\"" ATTRS "><arg>");
+	printb(8);
+	printf("</arg><title>");
+	printb(8);
+	printf("</title><subtitle>binary</subtitle></item>\n");
 
 	printf("</items>\n");
 	return 0;
