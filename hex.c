@@ -52,6 +52,63 @@ uint32_t x32[16];
 	} \
 } while (0)
 
+const char * ASCII[] = {
+	"NUL", "SOH", "STX", "EOT", "ENQ", "ACK", "BEL", "BS",
+	"HT",  "LF",  "VT",  "FF",  "CR",  "SO",  "SI",  "DLE",
+	"DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN",
+	"EM",  "SUB", "ESC", "FS",  "GS",  "RS",  "US",  "SP",
+
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     "DEL",
+
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,
+};
+#define printa(n) do { \
+	int i, a, skip; \
+	for (skip = 1, i = 0; i < sizeof(x ## n) / sizeof(x ## n[0]); i++) { \
+		a = x ## n[i] & 0xff; \
+		if (x ## n[i] == 0 && skip) { continue; } \
+		if (!skip) printf(" "); \
+		skip = 0; \
+		switch (x ## n[i]) { \
+		case '<': printf("&lt; "); break; \
+		case '>': printf("&gt; "); break; \
+		case '&': printf("&amp; "); break; \
+		default:  printf("%s", ASCII[a] ? ASCII[a] : "."); \
+		} \
+	} \
+} while (0)
+
 int main(int argc, char **argv)
 {
 	int skip, i, j;
@@ -192,6 +249,12 @@ int main(int argc, char **argv)
 	printf("</arg><title>");
 	printc(8);
 	printf("</title><subtitle>ascii</subtitle></item>\n");
+
+	printf("<item uuid=\"named-ascii\"" ATTRS "><arg>");
+	printa(8);
+	printf("</arg><title>");
+	printa(8);
+	printf("</title><subtitle>ascii (named)</subtitle></item>\n");
 
 	printf("<item uuid=\"dec8\"" ATTRS "><arg>");
 	printx(8, "%d");
