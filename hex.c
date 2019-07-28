@@ -53,12 +53,13 @@ uint32_t x32[16];
 } while (0)
 
 const char * ASCII[] = {
-	"NUL", "SOH", "STX", "EOT", "ENQ", "ACK", "BEL", "BS",
-	"HT",  "LF",  "VT",  "FF",  "CR",  "SO",  "SI",  "DLE",
-	"DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN",
-	"EM",  "SUB", "ESC", "FS",  "GS",  "RS",  "US",  "SP",
+	"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
+	"BS",  "HT",  "LF",  "VT",  "FF",  "CR",  "SO",  "SI",
+	"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
+	"CAN", "EM",  "SUB", "ESC", "FS",  "GS",  "RS",  "US",
+	"SP",
 
-	0,     0,     0,     0,     0,     0,     0,     0,
+	       0,     0,     0,     0,     0,     0,     0,
 	0,     0,     0,     0,     0,     0,     0,     0,
 	0,     0,     0,     0,     0,     0,     0,     0,
 	0,     0,     0,     0,     0,     0,     0,     0,
