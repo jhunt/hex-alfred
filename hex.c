@@ -203,7 +203,6 @@ int main(int argc, char **argv)
 		for (i = 63; i >= 0 && n > 0; i--) {
 			x8[i] = n & 0xff;
 			n = n >> 8;
-			// printf("%d %x\n", i, x8[i]);
 		}
 	}
 
@@ -237,16 +236,6 @@ int main(int argc, char **argv)
 			break;
 		}
 	}
-
-	// printf("%llx\n", x64[0]);
-	// printf("%llx\n", x64[1]);
-	// printf("%llx\n", x64[2]);
-	// printf("%llx\n", x64[3]);
-	// printf("%llx\n", x64[4]);
-	// printf("%llx\n", x64[5]);
-	// printf("%llx\n", x64[6]);
-	// printf("%llx\n", x64[7]);
-
 
 
 #define ATTRS " valid=\"yes\" auto=\"\""
