@@ -237,7 +237,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-
 #define ATTRS " valid=\"yes\" auto=\"\""
 	printf("<item uuid=\"hex\"" ATTRS "><arg>");
 	printx(8, "%02x");
