@@ -9,6 +9,7 @@ uint8_t  x8[64];
 uint16_t x12[64];
 uint16_t x16[32];
 uint32_t x32[16];
+uint64_t x64[8];
 
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #define printb(n) do { \
@@ -213,6 +214,10 @@ int main(int argc, char **argv)
 		x32[i/4] = x8[i] << 24 | x8[i|1] << 16 | x8[i|2] << 8 | x8[i|3];
 		i += 4;
 	}
+	for (i = 0; i < 63; ) {
+		x64[i/8] = ((uint64_t)x8[i]) << 56 | ((uint64_t)x8[i|1]) << 48 | ((uint64_t)x8[i|2]) << 40 | ((uint64_t)x8[i|3]) << 32 | ((uint64_t)x8[i|4]) << 24 | ((uint64_t)x8[i|5]) << 16 | ((uint64_t)x8[i|6]) << 8 | ((uint64_t)x8[i|7]);
+		i += 8;
+	}
 	skip = 4; /* right skip */
 	for (i = 63, j = 63; i >= 1 && j >= 0; ){
 		switch (skip) {
@@ -270,10 +275,16 @@ int main(int argc, char **argv)
 	printf("</title><subtitle>decimal 16</subtitle></item>\n");
 
 	printf("<item uuid=\"dec32\"" ATTRS "><arg>");
-	printx(32, "%d");
+	printx(32, "%u");
 	printf("</arg><title>");
-	printx(32, "%d");
+	printx(32, "%u");
 	printf("</title><subtitle>decimal 32</subtitle></item>\n");
+
+	printf("<item uuid=\"dec64\"" ATTRS "><arg>");
+	printx(64, "%llu");
+	printf("</arg><title>");
+	printx(64, "%llu");
+	printf("</title><subtitle>decimal 64</subtitle></item>\n");
 
 	printf("<item uuid=\"bin\"" ATTRS "><arg>");
 	printb(8);
