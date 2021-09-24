@@ -125,6 +125,9 @@ int main(int argc, char **argv)
 	}
 
 	for (i = 0; i < strlen(argv[1]); i++) {
+		if (argv[1][i] >= 'A' && argv[1][i] <= 'F') {
+			argv[1][i] = (int)argv[1][i] + 32;
+		}
 		if (argv[1][i] >= '0' && argv[1][i] <= '7') {
 			continue;
 		}
